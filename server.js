@@ -85,55 +85,38 @@ const TOOLS = [
 
 // ─── Email ────────────────────────────────────────────────────────────────────
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
-
 async function sendLeadEmail(lead) {
-  const transporter = createTransporter();
   const timestamp = new Date().toLocaleString('uk-UA', { timeZone: 'Europe/Kyiv' });
-
-  await transporter.sendMail({
-    from: `"Emerem Чат-бот" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-    to: process.env.MANAGER_EMAIL,
-    subject: `🔥 Новий лід з сайту: ${lead.name}`,
-    html: `
+  const htmlBody = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
-        <h2 style="color:#1a56db">🔥 Новий гарячий лід — Emerem Технік</h2>
+        <h2 style="color:#1a56db">Новий гарячий лід — Emerem Технік</h2>
         <table style="width:100%;border-collapse:collapse">
-          <tr style="background:#f3f4f6">
-            <td style="padding:10px;font-weight:bold;width:30%">Ім'я</td>
-            <td style="padding:10px">${escapeHtml(lead.name)}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px;font-weight:bold">Контакт</td>
-            <td style="padding:10px">${escapeHtml(lead.contact)}</td>
-          </tr>
-          <tr style="background:#f3f4f6">
-            <td style="padding:10px;font-weight:bold">Задача</td>
-            <td style="padding:10px">${escapeHtml(lead.task)}</td>
-          </tr>
-          ${lead.summary ? `
-          <tr>
-            <td style="padding:10px;font-weight:bold">Підсумок</td>
-            <td style="padding:10px">${escapeHtml(lead.summary)}</td>
-          </tr>` : ''}
+          <tr style="background:#f3f4f6"><td style="padding:10px;font-weight:bold;width:30%">Імя</td><td style="padding:10px">${escapeHtml(lead.name)}</td></tr>
+          <tr><td style="padding:10px;font-weight:bold">Контакт</td><td style="padding:10px">${escapeHtml(lead.contact)}</td></tr>
+          <tr style="background:#f3f4f6"><td style="padding:10px;font-weight:bold">Задача</td><td style="padding:10px">${escapeHtml(lead.task)}</td></tr>
+          ${lead.summary ? `<tr><td style="padding:10px;font-weight:bold">Підсумок</td><td style="padding:10px">${escapeHtml(lead.summary)}</td></tr>` : ''}
         </table>
-        <p style="color:#6b7280;font-size:12px;margin-top:16px">
-          Отримано: ${timestamp} | Джерело: чат-віджет emerem.ua
-        </p>
-      </div>
-    `,
-    text: `Новий лід\nІм'я: ${lead.name}\nКонтакт: ${lead.contact}\nЗадача: ${lead.task}${lead.summary ? '\nПідсумок: ' + lead.summary : ''}\n\nОтримано: ${timestamp}`,
+        <p style="color:#6b7280;font-size:12px;margin-top:16px">Отримано: ${timestamp} | Джерело: чат-віджет emerem.ua</p>
+      </div>`;
+
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+      'accept': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { email: process.env.SMTP_FROM || 'info@emerem.ua', name: 'Emerem Чат-бот' },
+      to: [{ email: process.env.MANAGER_EMAIL }],
+      subject: 'Новий лід з сайту: ' + lead.name,
+      htmlContent: htmlBody,
+    }),
   });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error('Brevo API ' + res.status + ': ' + t);
+  }
 }
 
 function escapeHtml(str) {
