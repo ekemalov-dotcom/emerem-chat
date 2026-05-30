@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  origin: function(o,cb){cb(null,true);},
 }));
 app.use(express.json());
 
