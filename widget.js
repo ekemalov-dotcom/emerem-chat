@@ -10,7 +10,7 @@
     })();
 
   var SERVER_URL = (scriptEl.getAttribute('data-server') || '').replace(/\/$/, '');
-  var BOT_NAME   = scriptEl.getAttribute('data-name')   || 'Emerem Технік';
+  var BOT_NAME   = scriptEl.getAttribute('data-name')   || 'Асистент - Емерем Технік';
   var BOT_COLOR  = scriptEl.getAttribute('data-color')  || '#1a56db';
 
   if (!SERVER_URL) {
