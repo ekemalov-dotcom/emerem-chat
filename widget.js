@@ -52,7 +52,7 @@
     '#em-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}',
     '#em-messages::-webkit-scrollbar{width:4px}',
     '#em-messages::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}',
-    '.em-msg{max-width:82%;word-wrap:break-word;line-height:1.5}',
+    '.em-msg{max-width:82%;word-wrap:break-word;line-height:1.5;white-space:pre-wrap}',
     '.em-msg-bot{align-self:flex-start;background:#f3f4f6;color:#111;padding:10px 13px;border-radius:4px 14px 14px 14px}',
     '.em-msg-user{align-self:flex-end;background:' + BOT_COLOR + ';color:#fff;padding:10px 13px;border-radius:14px 4px 14px 14px}',
     '.em-msg-time{font-size:10px;opacity:.55;margin-top:4px;text-align:right}',
